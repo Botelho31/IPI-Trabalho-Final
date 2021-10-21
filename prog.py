@@ -1,11 +1,9 @@
 import cv2 as cv
 import numpy as np
-from bitstring import BitArray
-import sys
+import math
 from show_image import show_image
 from arnold_transform import arnold_transform
 from write_image import write_image
-from difflib import SequenceMatcher
 
 def bitstring_to_bytes(s):
     v = int(s, 2)
@@ -37,7 +35,12 @@ def apply_dc(img, originx, originy, pixelblocklength, dc_dif):
   newimage = img.copy()
   for i in range(0 ,pixelblocklength):
     for j in range(0 ,pixelblocklength):
-      newimage[originx + i][originy + j] += (dc_dif)/pixelblocklength
+      value = (dc_dif)/pixelblocklength
+      if(dc_dif < 0):
+        value = math.floor(value)
+      else:
+        value = math.ceil(value)
+      newimage[originx + i][originy + j] += value
   return newimage
 
 def embed_binary(img, size, pixel_block_size, bit_array):
