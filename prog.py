@@ -125,10 +125,11 @@ def main():
   unscrambled_logo_b = arnold_transform(scrambled_logo_b, deciter)
 
   embedded_image = cv.merge((embedded_image_b, embedded_image_g, embedded_image_r))
+  scrambled_logo = cv.merge((scrambled_logo_b, scrambled_logo_g, scrambled_logo_r))
   unscrambled_logo = cv.merge((unscrambled_logo_b, unscrambled_logo_g, unscrambled_logo_r))
 
-  write_image('results/',[embedded_image, unscrambled_logo],'png')
-  show_image([img, logo, embedded_image, unscrambled_logo])
+  write_image('results/',[img, logo,embedded_image,scrambled_logo, unscrambled_logo],'png')
+  show_image([img, logo, embedded_image,scrambled_logo, unscrambled_logo])
 
 
 main()
