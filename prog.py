@@ -95,14 +95,14 @@ def perform_watermark_embedding(img,img_size,logo,logo_size,pixel_block_size):
   return (embedded_image,new_scrambled_logo)
 
 
-def main():
+def main(imagepath,logopath,resultspath):
   img_size = 512
   logo_size = 128
   pixel_block_size = 1
-  img = cv.imread('assets/lena.tif',cv.IMREAD_COLOR)
+  img = cv.imread(imagepath,cv.IMREAD_COLOR)
   img = cv.resize(img,(img_size,img_size),interpolation = cv.INTER_AREA)
 
-  logo = cv.imread('assets/peugeot.jpg',cv.IMREAD_COLOR)
+  logo = cv.imread(logopath,cv.IMREAD_COLOR)
   logo = cv.resize(logo,(logo_size,logo_size),interpolation = cv.INTER_AREA)
 
   img_b,img_g,img_r = cv.split(img)
@@ -128,8 +128,37 @@ def main():
   scrambled_logo = cv.merge((scrambled_logo_b, scrambled_logo_g, scrambled_logo_r))
   unscrambled_logo = cv.merge((unscrambled_logo_b, unscrambled_logo_g, unscrambled_logo_r))
 
-  write_image('results/',[img, logo,embedded_image,scrambled_logo, unscrambled_logo],'png')
-  show_image([img, logo, embedded_image,scrambled_logo, unscrambled_logo])
+  # Imagem diferença 
+  diff_image = cv.absdiff(img, embedded_image)
+  diff_perc_img = (np.count_nonzero(diff_image) / (img_size*img_size * 3)) * 100
+  print('Diff Image: ', diff_perc_img, '%')
 
+  # Logo diferença
+  diff_logo = cv.absdiff(logo, unscrambled_logo)
+  diff_perc_logo = (np.count_nonzero(diff_logo) / (logo_size*logo_size * 3)) * 100
+  print('Diff Logo: ' ,diff_perc_logo, '%')
 
-main()
+  write_image('results/' + resultspath,[img, logo,embedded_image,scrambled_logo, unscrambled_logo ,diff_image,diff_logo],'png')
+  # show_image([img, logo, embedded_image,scrambled_logo, unscrambled_logo,diff_image,diff_logo])
+  return [diff_perc_img, diff_perc_logo]
+
+logos = ['assets/logos/peugeot.jpg',
+         'assets/logos/coca-cola.jfif']
+images = ['assets/images/lena.tif',
+          'assets/images/mandril_color.tif',
+          'assets/images/peppers_color.tif',
+          'assets/images/fruits.png',
+          'assets/images/HappyFish.jpg',
+          'assets/images/tulips.png',]
+
+avg_img_diff = 0
+avg_logo_diff = 0
+for i in range(0 ,len(images)):
+  for j in range(0 ,len(logos)):
+    res = main(images[i],logos[j],str(j) + '_' + str(i) + '_')
+    avg_img_diff += res[0]
+    avg_logo_diff += res[1]
+number_of_tests = len(images) * len(logos)
+
+print(avg_img_diff/number_of_tests)
+print(avg_logo_diff/number_of_tests)
